@@ -10,7 +10,8 @@ from starlette import status
 
 from config import settings
 from db_connection import Session, SessionLocal, get_db
-from models.user_models import User
+from models import User
+from schemas import TokenData
 
 SECRET_KEY = "mysecretkey"
 ALGORITHM = "HS256"
@@ -21,14 +22,8 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-class UserCreate(BaseModel):
-    email: str
-    password: str
-
-
-class User_new(UserCreate):
-    id: int
-    username: Optional[str] = None
+def get_latest_user(db: Session) -> User:
+    return db.query(User).order_by(User.id.desc()).first()
 
 
 def get_user_by_email(email: str):
@@ -71,14 +66,10 @@ def authenticate_user(email: str, password: str):
 security = HTTPBearer()
 
 
-class TokenData(BaseModel):
-    email: str
-
-
 def get_current_user(db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Depends(security)) -> User:
     try:
         token = credentials.credentials
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication credentials")

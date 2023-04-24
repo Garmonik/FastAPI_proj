@@ -1,10 +1,7 @@
 from logging.config import fileConfig
-
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
-
 from config import settings
 from db_connection import Base
 
@@ -18,6 +15,7 @@ config.set_section_option(section, "DB_PORT", settings.DB_PORT)
 config.set_section_option(section, "DB_USER", settings.DB_USER)
 config.set_section_option(section, "DB_NAME", settings.DB_NAME)
 config.set_section_option(section, "DB_PASS", settings.DB_PASS)
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:

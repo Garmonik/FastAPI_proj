@@ -1,9 +1,19 @@
-from typing import List
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Tuple, LargeBinary, ARRAY
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, LargeBinary, Float, ARRAY
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.expression import func
 
 from db_connection import Base
+
+
+class User(Base):
+    __tablename__ = "users"
+    __table_args__ = {"extend_existing": True}
+    id: int = Column(Integer, primary_key=True, index=True)
+    email: str = Column(String, unique=True, index=True, nullable=False)
+    username: str = Column(String, unique=True, nullable=True)
+    hashed_password: str = Column(String(length=1024), nullable=False)
+    is_active: bool = Column(Boolean, default=True, nullable=False)
+    is_superuser: bool = Column(Boolean, default=False, nullable=False)
+    is_verified: bool = Column(Boolean, default=False, nullable=False)
 
 
 class Direction(Base):
@@ -30,8 +40,8 @@ class Recipe(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True, nullable=False)
     description = Column(String, nullable=False)
-    ingredients = Column(ARRAY[String], nullable=False)
-    guide = Column(List[Direction], nullable=False)
+    ingredients = Column(ARRAY(String), nullable=False)
+    guide = Column(ARRAY(Integer), nullable=False)
     total_time = Column(Integer, nullable=False)
     rating = Column(Float, nullable=True)
     author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
